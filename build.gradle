@@ -1,0 +1,132 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'jacoco'
+    id 'signing'
+    id 'checkstyle'
+    id 'maven-publish'
+    id 'com.github.spotbugs'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.spring'
+}
+
+// dependencyLocking, java 21 source/target, shared KotlinCompile options,
+// checkstyle (shared pinned release, local gradles/checkstyle.xml), jacoco toolVersion, and the
+// spotbugs reportLevel/toolVersion defaults come from gradles/chronicle.gradle.
+
+description = "Rhizome client libraries"
+group = "com.geekbeast"
+
+/*
+ * This block must remain above the apply block as it controls publishing"
+ */
+ext.projectName = "rhizome-client"
+ext.scmUrl = 'scm:git:https://github.com/uzaira0/rhizome-client.git'
+ext.connectionUrl = 'scm:git:https://github.com/uzaira0/rhizome-client.git'
+ext.developerConnectionUrl = 'scm:git:https://github.com/uzaira0/rhizome-client.git'
+
+if(!project.hasProperty('developmentMode')) {
+    ext.developmentMode = false
+}
+
+println projectName + " with developmentMode = " + project.developmentMode
+
+def localChronicleGradle = file("../gradles/chronicle.gradle")
+if (!localChronicleGradle.exists()) {
+    localChronicleGradle = file("../methodic/gradles/chronicle.gradle")
+}
+if (localChronicleGradle.exists()) {
+    apply from: localChronicleGradle
+} else {
+    throw new GradleException("Missing local Chronicle Gradle script: ../gradles/chronicle.gradle (or ../methodic/gradles/chronicle.gradle) — check out the methodic repo beside this one")
+}
+
+
+spotbugsMain {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+test {
+    // A failing unit test MUST fail the build (was previously masked by
+    // ignoreFailures = true).
+    ignoreFailures = false
+}
+
+dependencies {
+    spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${findsecbugs_version}"
+    compileOnly "net.jcip:jcip-annotations:${jcip_version}"
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs_annotations_version}"
+    testCompileOnly "net.jcip:jcip-annotations:${jcip_version}"
+    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs_annotations_version}"
+
+    implementation group: "org.slf4j", name: "slf4j-api", version: "${slf4j_version}"
+
+    /*
+     * @Inject and @Nullable support
+     */
+    api "jakarta.inject:jakarta.inject-api:${jakarta_inject_version}"
+
+    api "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_version}"
+    api "com.esotericsoftware:kryo-shaded:${kryo_shaded_version}"
+    api "com.esotericsoftware:minlog:${minlog_version}"
+    api "com.esotericsoftware:reflectasm:${reflectasm_version}"
+    api "org.objenesis:objenesis:${objenesis_version}"
+
+    api "org.apache.commons:commons-lang3:${commonsLang_version}"
+    api "commons-io:commons-io:${commonsio_version}"
+
+    api "com.google.guava:guava:${guava_version}"
+    api "org.apache.olingo:odata-commons-api:${odata_version}"
+    api "org.apache.olingo:odata-commons-core:${odata_version}"
+    api "org.apache.olingo:odata-server-api:${odata_version}"
+    api "org.apache.olingo:odata-server-core:${odata_version}"
+
+    api "com.squareup.retrofit2:retrofit:${retrofit2_version}"
+
+    api "com.fasterxml.jackson.core:jackson-core:${jackson_version}"
+    api "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
+    api "com.fasterxml.jackson.datatype:jackson-datatype-guava:${jackson_version}"
+    api "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:${jackson_version}"
+    api "com.fasterxml.jackson.module:jackson-module-blackbird:${jackson_version}"
+    api "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${jackson_version}"
+    api "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jackson_version}"
+    api "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${jackson_version}"
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}"
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_version}"
+    api "com.fasterxml.jackson.module:jackson-module-kotlin:${jackson_version}"
+    api "org.yaml:snakeyaml:${snakeyaml_version}"
+
+    // Standalone JWT library for HS256 signing/verification (not the Auth0 platform SDK)
+    api "com.auth0:java-jwt:${auth0_java_jwt_version}"
+    // Auth0 SDK kept temporarily for com.auth0.json.mgmt.users.User model class
+    // used extensively in chronicle-server. TODO: Replace with a local User POJO.
+    api "com.auth0:auth0:${project.auth0_version}"
+
+    /*
+     * TESTING
+     */
+    testImplementation "junit:junit:${junit_version}"
+    testImplementation("org.mockito:mockito-core:${mockito_version}") {
+        exclude module: 'hamcrest'
+        exclude module: 'hamcrest-core'
+    }
+}
+
+eclipse {
+    ext.downloadSources = true
+    ext.downloadJavadoc = true
+}
+
+// explicitApi() and allWarningsAsErrors skipped: rhizome-client source files are not modified by this project
+// Warnings exist in source (annotation use-site, deprecated Java APIs) that would fail -Werror
+// (shared KotlinCompile options come from gradles/chronicle.gradle)
