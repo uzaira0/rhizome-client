@@ -3,11 +3,14 @@ package com.geekbeast.mappers.mappers;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +48,7 @@ public final class ObjectMappers {
         yamlMapper.configure( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false );
         yamlMapper.disable( DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE );
         yamlMapper.configure( MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false );
+        yamlMapper.registerModule( setOrderModule() );
         return yamlMapper;
     }
 
@@ -58,6 +62,7 @@ public final class ObjectMappers {
         smileMapper.configure( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false );
         smileMapper.disable( DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE );
         smileMapper.configure( MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false );
+        smileMapper.registerModule( setOrderModule() );
         return smileMapper;
     }
 
@@ -71,7 +76,17 @@ public final class ObjectMappers {
         mapper.configure( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false );
         mapper.disable( DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE );
         mapper.configure( MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false );
+        mapper.registerModule( setOrderModule() );
         return mapper;
+    }
+
+    /**
+     * Reads every {@code Set} as a {@link LinkedHashSet}, so a value read and written again keeps
+     * its stored order. The Jackson default is a {@code HashSet}, and for enums its order changes
+     * with every JVM start, so re-saved JSON differs from the stored JSON.
+     */
+    public static SimpleModule setOrderModule() {
+        return new SimpleModule( "PreserveSetOrder" ).addAbstractTypeMapping( Set.class, LinkedHashSet.class );
     }
 
     public static ObjectMapper getYamlMapper() {
