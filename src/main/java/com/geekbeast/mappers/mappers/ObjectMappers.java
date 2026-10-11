@@ -39,35 +39,18 @@ public final class ObjectMappers {
     private ObjectMappers() {}
 
     protected static ObjectMapper createYamlMapper() {
-        ObjectMapper yamlMapper = new ObjectMapper( new YAMLFactory() );
-        yamlMapper.registerModule( new Jdk8Module() );
-        yamlMapper.registerModule( new GuavaModule() );
-        yamlMapper.registerModule( new JavaTimeModule() );
-        yamlMapper.registerModule( new BlackbirdModule() );
-        yamlMapper.registerModule( new KotlinModule.Builder().build() );
-        yamlMapper.configure( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false );
-        yamlMapper.disable( DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE );
-        yamlMapper.configure( MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false );
-        yamlMapper.registerModule( setOrderModule() );
-        return yamlMapper;
+        return configureMapper( new ObjectMapper( new YAMLFactory() ) );
     }
 
     protected static ObjectMapper createSmileMapper() {
-        ObjectMapper smileMapper = new ObjectMapper( new SmileFactory() );
-        smileMapper.registerModule( new Jdk8Module() );
-        smileMapper.registerModule( new GuavaModule() );
-        smileMapper.registerModule( new JavaTimeModule() );
-        smileMapper.registerModule( new BlackbirdModule() );
-        smileMapper.registerModule( new KotlinModule.Builder().build() );
-        smileMapper.configure( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false );
-        smileMapper.disable( DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE );
-        smileMapper.configure( MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false );
-        smileMapper.registerModule( setOrderModule() );
-        return smileMapper;
+        return configureMapper( new ObjectMapper( new SmileFactory() ) );
     }
 
     protected static ObjectMapper createJsonMapper() {
-        ObjectMapper mapper = new ObjectMapper();
+        return configureMapper( new ObjectMapper() );
+    }
+
+    private static ObjectMapper configureMapper( ObjectMapper mapper ) {
         mapper.registerModule( new Jdk8Module() );
         mapper.registerModule( new JavaTimeModule() );
         mapper.registerModule( new GuavaModule() );
