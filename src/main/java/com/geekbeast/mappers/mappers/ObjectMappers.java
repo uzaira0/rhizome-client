@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
+import com.geekbeast.RetiredConfigurationKeys;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +61,7 @@ public final class ObjectMappers {
         mapper.disable( DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE );
         mapper.configure( MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false );
         mapper.registerModule( setOrderModule() );
+        mapper.addHandler( new RetiredConfigurationKeys() );
         return mapper;
     }
 

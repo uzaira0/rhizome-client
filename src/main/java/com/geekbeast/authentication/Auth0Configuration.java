@@ -20,14 +20,10 @@
 
 package com.geekbeast.authentication;
 
-import com.auth0.json.mgmt.users.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableSet;
 import com.geekbeast.rhizome.configuration.configuration.annotation.ReloadableConfiguration;
 import java.io.Serializable;
-import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -38,20 +34,18 @@ import org.slf4j.LoggerFactory;
  * compatibility with existing auth0.yaml files), this class is used for generic
  * self-hosted JWT configuration. The Auth0-cloud-specific fields (domain, clientId,
  * clientSecret, managementApiUrl) are accepted but ignored -- only the JWT
- * {@code configurations} and optional {@code users} list are functionally required.
+ * {@code configurations} are functionally required.
  *
  * @author Matthew Tamayo-Rios &lt;matthew@kryptnostic.com&gt;
  */
 // TODO: Implement data serializable or identified data serializable
 @ReloadableConfiguration(
         uri = "auth0.yaml" )
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Auth0Configuration implements Serializable {
     private static final long   serialVersionUID = 3802624515206194126L;
     private static final Logger logger           = LoggerFactory.getLogger( Auth0Configuration.class );
 
     public static final String CONFIGURATIONS_FIELD     = "configurations";
-    public static final String USERS_FIELD              = "users";
 
     // Legacy fields -- accepted from YAML for backward compatibility but no longer required
     public static final String DOMAIN_FIELD             = "domain";
@@ -63,7 +57,6 @@ public class Auth0Configuration implements Serializable {
     private final String                                clientId;
     private final String                                clientSecret;
     private final Set<Auth0AuthenticationConfiguration> configurations;
-    private final Set<User>                             users;
     private final String                                managementApiUrl;
 
     @JsonCreator
@@ -72,14 +65,12 @@ public class Auth0Configuration implements Serializable {
             @JsonProperty( CLIENT_ID_FIELD ) String clientId,
             @JsonProperty( CLIENT_SECRET_FIELD ) String clientSecret,
             @JsonProperty( CONFIGURATIONS_FIELD ) Set<Auth0AuthenticationConfiguration> configurations,
-            @JsonProperty( USERS_FIELD ) Optional<Set<User>> users,
             @JsonProperty( MANAGEMENT_API_URL_FIELD ) String managementApiUrl ) {
         this.domain = domain != null ? domain : "localhost";
         this.clientId = clientId != null ? clientId : "";
         this.clientSecret = clientSecret != null ? clientSecret : "";
         this.configurations = configurations;
         this.managementApiUrl = managementApiUrl != null ? managementApiUrl : "localhost";
-        this.users = users.orElse( ImmutableSet.of() );
     }
 
     /**
@@ -123,8 +114,4 @@ public class Auth0Configuration implements Serializable {
         return managementApiUrl;
     }
 
-    @JsonProperty( USERS_FIELD )
-    public Set<User> getUsers() {
-        return users;
-    }
 }
