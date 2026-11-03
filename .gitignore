@@ -1,4 +1,6 @@
 .gradle/
+# Kotlin compile daemon state (sessions/*.salive is rewritten on every build)
+.kotlin/
 out/
 artifacts/
 bin/
@@ -19,3 +21,8 @@ src/main/webapp/auth/
 *.css.map
 *.js.map
 
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
