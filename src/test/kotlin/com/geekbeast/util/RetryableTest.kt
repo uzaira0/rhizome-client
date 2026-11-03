@@ -6,8 +6,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The retry loop previously slept after the final failure (delaying a terminal error by a full
- * backoff interval) and accepted maxAttempts = 0, which reached `lastException!!` with null.
+ * The retry loop does not sleep after the final failure (that would delay a terminal error by a full
+ * backoff interval) and refuses maxAttempts = 0, which would reach `lastException!!` with null.
  */
 class RetryableTest {
 

@@ -57,8 +57,7 @@ spotbugsMain {
 }
 
 test {
-    // A failing unit test MUST fail the build (was previously masked by
-    // ignoreFailures = true).
+    // A failing unit test fails the build.
     ignoreFailures = false
 }
 
