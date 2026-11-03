@@ -1,9 +1,9 @@
 package com.geekbeast.retrofit;
 
-import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class RhizomeCallAdapterFactory extends CallAdapter.Factory {
                         String responseBody = "";
                         final var errorBody = response.errorBody();
                         if ( errorBody != null ) {
-                            responseBody = IOUtils.toString( errorBody.byteStream(), Charsets.UTF_8 );
+                            responseBody = IOUtils.toString( errorBody.byteStream(), StandardCharsets.UTF_8 );
                         }
                         logger.error( "Call to endpoint {} failed with code {} and message {} and error body {}",
                                 url,
